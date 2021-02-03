@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="../admin/js/jquery-3.3.1.min.js" ></script>
+<link rel="stylesheet" type="text/css" href="../admin/js/css/layui.css">
+<script type="text/javascript" src="../admin/js/layui.js"></script>
+<script type="text/javascript">
+/* function shows() {
+	var formdata = new FormData();
+	formdata.append('formFile',$("#newfile")[0].files[0]);
+	$.post({
+		url:"../userbefore/productServlet",
+		data:formdata,
+		contentType: false,
+        processData: false,
+		dataType:"text",
+		success:function(data){
+			$("img").attr("src","../../img/"+data);
+			$("#upimg1").val(data);
+		}
+	});
+} */
+
+
+
+layui.use(['form', 'layedit', 'laydate'], function(){
+	  var form = layui.form
+	  ,layer = layui.layer
+	  ,layedit = layui.layedit
+	  ,laydate = layui.laydate
+	  ,$ = layui.$;
+	  
+	  
+	//监听提交
+	  form.on('submit(demo1)', function(data){
+		  $.post({
+				url:"../userbefore/productServlet",
+				data:$("#addform").serialize(),
+				dataType:"json",
+				success:function(da){
+					
+				}
+		});
+	  });
+	  
+	  
+	  form.on('select(level1)', function(data){ 
+		  $.post({
+				url:"../userbefore/productServlet",
+				data:"op=two&parentid="+data.value,
+				dataType:"json",
+				success:function(da){
+					$("#level2").html("<option>--二级标题--</option>");
+					for(var i in da){
+						var p = da[i];
+						var n = p.title;
+						var $op = $("<option value="+p.id+">"+n+"</option>");
+						$("#level2").append($op);
+					}
+					
+					layui.use(['element','form'], function() {
+				           var element = layui.element;
+				           element.init();
+				           var form = layui.form;
+				           form.render();
+				          });
+				}
+		});
+	});
+	  
+	  
+	  form.on('select(level2)', function(data){ 
+		  $.post({
+				url:"../userbefore/productServlet",
+				data:"op=three&parentid="+data.value,
+				dataType:"json",
+				success:function(da){
+					$("#level3").html("<option>--三级标题--</option>");
+					for(var i in da){
+						var p = da[i];
+						var n = p.title;
+						var $op = $("<option value="+p.id+">"+n+"</option>");
+						$("#level3").append($op);
+					}
+					
+					layui.use(['element','form'], function() {
+				           var element = layui.element;
+				           element.init();
+				           var form = layui.form;
+				           form.render();
+				          });
+				}
+		});
+	});
+});
+	
+	
+$(function(){
+	$.post({
+		url:"../userbefore/productServlet",
+		data:"op=one",
+		dataType:"json",
+		success:function(data){
+			for(var i in data){
+				var p = data[i];
+				var n = p.title;
+				var $op = $("<option value="+p.id+">"+n+"</option>");
+				$("#level1").append($op);
+			}
+			
+			layui.use('element', function() {
+		           var element = layui.element;
+		           element.init();
+		          });
+			
+			layui.use('form', function() {
+		           var form = layui.form;
+		           form.render();
+		          });
+		}
+	});
+});
+	  
+	  
+layui.use('upload', function(){
+	  var $ = layui.jquery
+	  ,upload = layui.upload;
+	  
+	  //普通图片上传
+	  var uploadInst = upload.render({
+	    elem: '#test1'
+	    ,type:'post'
+	    ,url: '../userbefore/productServlet' //改成您自己的上传接口
+	    ,before: function(obj){
+	      //预读本地文件示例，不支持ie8
+	      obj.preview(function(index, file, result){
+	    	$('#viewtimg').attr('src', result);
+	      });
+	    }
+	    ,done: function(res){
+	      //如果上传失败
+	      if(res.code > 0){
+	        return layer.msg('上传失败');
+	      }
+	      //上传成功
+	      $("#uptimg1").val(res.data);
+	    }
+	    ,error: function(){
+	      //演示失败状态，并实现重传
+	      var demoText = $('#demoText');
+	      demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+	      demoText.find('.demo-reload').on('click', function(){
+	        uploadInst.upload();
+	      });
+	    }
+	  });
+});
+	  
+</script>
+</head>
+<body>
+	<form id="addform" class="layui-form" action="productList.html" method="post" enctype="multipart/form-data">
+  		<input type="hidden" name="op" value="add" />
+		<input id="upimg1" type="hidden" name="nnfile" value="">
+		
+  <div class="layui-form-item">
+    <label class="layui-form-label">产品名称</label>
+    <div class="layui-input-block">
+      <input type="text" name="pname" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    </div>
+  </div>
+  
+	<!-- <div class="layui-form-item">
+    <label class="layui-form-label">产品图片</label>
+    <div class="layui-input-block">
+      <input id="newfile" type="file" name="pimg" onchange="shows()" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    <img id='show' src="" width=100 height=100>
+    </div>
+  </div> -->
+  
+  <div class="layui-form-item">
+		  <label class="layui-form-label">产品图片</label>
+		    <div class="layui-upload">
+			  <button type="button" name="formFile" class="layui-btn" id="test1">上传图片</button>
+			  <div class="layui-upload-list">
+		    	<p id="demoText"></p>
+	  		</div>
+		    <div class="layui-input-inline">
+		      <img class="layui-form-label" id="viewtimg" style="width:150px;height:150px" alt="" src="">
+		      <input id="uptimg1" type="hidden" name="pimg"/>
+		    </div>
+		  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">产品价格</label>
+    <div class="layui-input-block">
+      <input type="text" name="price" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">产品标题</label>
+    <div class="layui-input-inline">
+      <select id="level1" lay-filter="level1"  name="quiz1">
+        <option>--一级标题--</option>
+      </select>
+    </div>
+    <div class="layui-input-inline">
+      <select id="level2" lay-filter="level2" name="quiz2" >
+        <option>--二级标题--</option>
+      </select>
+    </div>
+    <div class="layui-input-inline">
+      <select id="level3" name="quiz3">
+        <option>--三级标题--</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">点击数量</label>
+    <div class="layui-input-block">
+      <input type="text" name="pv" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">类别号码</label>
+    <div class="layui-input-block">
+      <input type="text" name="typeid" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    </div>
+  </div>
+  
+  <!--<div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">编辑器</label>
+    <div class="layui-input-block">
+      <textarea class="layui-textarea layui-hide" name="content" lay-verify="content" id="LAY_demo_editor"></textarea>
+    </div>
+  </div>-->
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+
+
+</body>
+</html>

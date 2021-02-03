@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<properties resource="db.properties"/>
+	<typeAliases>
+		<!-- <typeAlias type="" alias=""/> -->
+		<package name="com.lanou.bean"/>
+	</typeAliases>
+	
+	<plugins>
+        <plugin interceptor="com.github.pagehelper.PageHelper">
+            <!--helperDialect 方言:就表示此插件针对哪个数据库进行优化处理
+            这个方言可以不配置,因为此插件可以依据你的 url 的信息来推断出
+            你用的数据库是哪一个
+            -->
+           <property name="dialect" value="mysql"/>
+            <!--分页合理化参数-->
+            <property name="reasonable" value="true"/>
+        </plugin>
+    </plugins>
+	
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="${driver}"/>
+        <property name="url" value="${url}"/>
+        <property name="username" value="${username}"/>
+        <property name="password" value="${password}"/>
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+  
+  	<package name="com.lanou.dao"/>
+    <!-- <mapper resource="AdminMapper.xml"/> -->
+  </mappers>
+</configuration>

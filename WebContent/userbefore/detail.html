@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+		<link rel="stylesheet" href="css/bootstrap.css" />
+
+		<!--需要引入JQuery-->
+		<script src="js/jquery-1.11.0.js"></script>
+		<script src="js/bootstrap-table.js"></script>
+		<link rel="stylesheet" href="js/bootstrap-table.css" />
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="js/bootstrap.js"></script>
+
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!--
+			引入bootstrap相关的头文件
+			1. div布局容器  class = " container"
+			2. 放8行 row 
+		-->
+	<script>
+		$(function(){
+			var h = window.location.href;
+			var d = h.split("=");
+			var id = decodeURI(d[1]);
+			$.ajax({
+				url:"../userbefore/productServlet",
+				dataType:"json",
+				page:true,
+				data:{
+					'page':1,
+					'limit':10
+				},
+				success:function(data){
+					for(var i in data.data){
+						var p = data.data[i];
+						var pimg = p.pimg;
+						var pname = p.pname;
+						var price = p.price;
+						var pid = p.id;
+						if(id==pid){
+							var $op = $("<img src='../../img/"+pimg+"' style='height:180px;width:150px;margin-left: 10px;'>");
+							var $sp = $("<p>标题："+p.ptitle+"</p>");
+						}
+						$("#bb").append($sp);
+						$("#aa").append($op);
+					}
+				}
+			});
+			
+			$("#addbtn").click(function(){
+				var uid = getMyCookie("id");
+				$.ajax({
+					url:"../userbefore/cart",
+					dataType:"json",
+					page:true,
+					data:{
+						'op':"add",
+						'id':id,
+						'uid':uid,
+						'page':1,
+						'limit':10
+					},
+					success:function(data){
+						confirm("添加成功");
+					}
+				});
+			});
+			
+			
+		});
+		
+		
+		
+		function getMyCookie(key){
+			var val = "";
+		
+			// 对cookie操作
+			var cookies = document.cookie;
+			cookies = cookies.replace(/\s/,"");
+			var cookie_array = cookies.split(";");
+			for(i=0;i<cookie_array.length;i++){
+				// yh_mch=lilei
+				var cookie = cookie_array[i];
+				var array = cookie.split("=");
+				if(array[0]==key){
+					val = array[1];
+				}
+			}
+			
+			return val;
+		}
+	</script>
+	</head>
+
+	<body>
+		<!--最外层的布局容器-->
+		<div class="container">
+			<!--LOGO部分-->
+			<div class="row">
+				<!--<div class="col-md-4 col-sm-6 col-xs-6">
+					<img src="img/back.jpg" style="height: 6rem;"/>
+				</div>-->
+				<div class="col-md-4 hidden-sm hidden-xs">
+					<img src="img/back.jpg" style="height: 6rem; width: 1140px;" />
+				</div>
+				
+			</div>
+
+			
+			
+			
+			<body data-spy="scroll" data-target=".navbar" data-offset="50">
+
+<nav class="navbar  navbar-dark fixed-top"id="navbar-example2">  
+  <a class="navbar-brand"href="index.html"><
+</a>
+  <ul class="nav nav-pills">
+    <li class="nav-item">
+      <a class="nav-link" href="#section1">宝贝预览</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#section2">商品介绍</a>
+    </li>
+  </ul>
+</nav>
+<div id="section1" class="container-fluid bg-light" style="padding-top:10px;padding-bottom:10px">
+  <h1>宝贝预览</h1>
+  <p id="aa"></p>
+</div>
+<div id="section2" class="container-fluid bg-light" style="padding-top:10px;padding-bottom:10px">
+  <h1>商品介绍</h1>
+  <p id="bb"></p>
+  
+</div>
+<button id="addbtn" type="button" class="btn btn-danger">加入购物车</button>
+    </body>
+</html>
+			
+			<!-- footer -->
+			<!--<div class="row">
+				<div class="col-md-12">
+					<img src="img/11.jpg" width="100%"/>
+				</div>
+			</div>-->
+			
+			
+			<div style="text-align: center;">
+				        
+					<a href="#">关于我们</a>
+					<a href="#">联系我们</a>
+					<a href="#">招贤纳士</a>
+					<a href="#">法律声明</a>
+					<a href="#">友情链接</a>
+					<a href="#">支付方式</a>
+					<a href="#">配送方式</a>
+					<a href="#">服务声明</a>
+					<a href="#">广告声明</a>
+					
+					<br />
+					
+					Copyright © 2005-2020老徐商城 版权所有
+			</div>
+			
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lanou.dao.IAdminDao">
+  <select id="qryByNameAndPwd" resultType="Admin">
+    select * from t_admin where adminname=#{adminname} and adminpwd=#{adminpwd}
+  </select>
+  
+  <select id="getByPage" resultType="Admin">
+    select * from t_admin 
+  </select>
+  
+  <select id="getCount" resultType="Admin">
+  	select count(id) count from t_admin
+  </select>
+  
+  <insert id="addAdmin">
+  	insert into t_admin
+  	<trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="adminname != null and adminname!=''" >
+        adminname,
+      </if>
+      <if test="adminpwd != null and adminpwd!=''" >
+        adminpwd,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="adminname != null and adminname!=''" >
+        #{adminname},
+      </if>
+      <if test="adminpwd != null and adminpwd!=''" >
+        #{adminpwd},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="editAdmin">
+  	update t_admin 
+  	<set>
+  		<if test="adminname!=null and adminname!=''">
+  			adminname=#{adminname},
+  		</if>
+  		<if test="adminpwd!=null and adminpwd!=''">
+  			adminpwd=#{adminpwd},
+  		</if>
+  	</set>
+  	where id=#{id}
+  </update>
+  
+  <delete id="delAdmin">
+  	delete from t_admin where id=#{id}
+  </delete>
+  
+</mapper>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript" src="../admin/js/jquery-3.3.1.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="../admin/js/css/layui.css">
+		<script type="text/javascript" src="../admin/js/layui.js"></script>
+		<script>
+		/* function shows() {
+			var formdata = new FormData();
+			formdata.append('formFile',$("#newfile")[0].files[0]);
+			$.post({
+				url:"../userbefore/productServlet",
+				data:formdata,
+				contentType: false,
+		        processData: false,
+				dataType:"text",
+				success:function(data){
+					$("img").attr("src","../../img/"+data);
+					$("#upimg1").val(data);
+				}
+			});
+		} */
+		
+			layui.use(['table','form', 'layedit', 'laydate'], function(){
+			  var table = layui.table;
+			  var form = layui.form
+			  ,layer = layui.layer
+			  ,layedit = layui.layedit
+			  ,laydate = layui.laydate
+			  ,$ = layui.$;
+			  
+			  //第一个实例
+			  table.render({
+			    elem: '#demo'
+			    ,url: '../userbefore/productServlet' //数据接口
+			    ,page: true //开启分页
+			    ,cols: [[ //表头
+			       {field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
+			      ,{field: 'pname', title: '产品名', width:80}
+			      ,{field: 'pimg', title: '照片', width: 135,templet:'<div><img  src="../../img/{{d.pimg}}" width:50 height:50></div>'}
+			      ,{field: 'price', title: '价格', width:80, sort: true}
+			      ,{field: 'ptitle', title: '标题', width:250}
+			      ,{field: 'pv', title: '点击数', width: 135}
+			      ,{field: 'typename', title: '类别', width: 250}
+			      ,{field: 'barDemo', title: '操作', width:140,toolbar: '#barDemo'}
+			    ]]
+			  });
+			  
+			  
+			  form.on('select(level1)', function(data){ 
+				  $.post({
+						url:"../userbefore/productServlet",
+						data:"op=two&parentid="+data.value,
+						dataType:"json",
+						success:function(da){
+							$("#level2").html("<option>--二级标题--</option>");
+							$("#level3").html("<option>--三级标题--</option>");
+							for(var i in da){
+								var p = da[i];
+								var n = p.title;
+								var $op = $("<option value="+p.id+">"+n+"</option>");
+								$("#level2").append($op);
+							}
+							
+							layui.use(['element','form'], function() {
+						           var element = layui.element;
+						           element.init();
+						           var form = layui.form;
+						           form.render();
+						          });
+						}
+				});
+			});
+			  
+			  
+			  form.on('select(level2)', function(data){ 
+				  $.post({
+						url:"../userbefore/productServlet",
+						data:"op=three&parentid="+data.value,
+						dataType:"json",
+						success:function(da){
+							$("#level3").html("<option>--三级标题--</option>");
+							for(var i in da){
+								var p = da[i];
+								var n = p.title;
+								var $op = $("<option value="+p.id+">"+n+"</option>");
+								$("#level3").append($op);
+							}
+							
+							layui.use(['element','form'], function() {
+						           var element = layui.element;
+						           element.init();
+						           var form = layui.form;
+						           form.render();
+						          });
+						}
+				});
+			});
+			  
+			  
+			});
+			
+			$(function(){
+				$("#edit").click(function(){
+					$.post({
+						url:"../userbefore/productServlet",
+						data: $("#editform").serialize(),
+						dataType:"json",
+						success:function(data){	
+							var code = data.code;
+							if(code=='200'){
+								location.href = "productList.html";
+							}
+							
+						}
+						
+					});
+				});
+			});
+			
+			
+			
+			
+			layui.use('upload', function(){
+				  var $ = layui.jquery
+				  ,upload = layui.upload;
+				  
+				  //普通图片上传
+				  var uploadInst = upload.render({
+				    elem: '#test1'
+				    ,type:'post'
+				    ,url: '../userbefore/productServlet' //改成您自己的上传接口
+				    ,before: function(obj){
+				      //预读本地文件示例，不支持ie8
+				      obj.preview(function(index, file, result){
+				    	$('#viewtimg').attr('src', result);
+				      });
+				    }
+				    ,done: function(res){
+				      //如果上传失败
+				      if(res.code > 0){
+				        return layer.msg('上传失败');
+				      }
+				      //上传成功
+				      $("#uptimg1").val(res.data);
+				    }
+				    ,error: function(){
+				      //演示失败状态，并实现重传
+				      var demoText = $('#demoText');
+				      demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+				      demoText.find('.demo-reload').on('click', function(){
+				        uploadInst.upload();
+				      });
+				    }
+				  });
+			});
+		</script>
+	</head>
+	<body>
+		<table id="demo" lay-filter="test"></table>
+		
+		<form style="display:none" id="editform" lay-filter="formTest" class="layui-form layui-form-pane" action="">
+		  <input type="hidden" name="op" value="edit">
+		  <input id="ee" type="hidden" name="id" value="">
+		 
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">产品名称</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="pname" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  <!-- <div class="layui-form-item">
+		    <label class="layui-form-label">产品图片</label>
+		    <div class="layui-input-inline">
+			<input id="newfile" type="file" name="pimg" onchange="shows()" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+    		<img id='show' src="" width=100 height=100>		    </div>
+		  </div> -->
+		  
+		  <div class="layui-form-item">
+		  <label class="layui-form-label">产品图片</label>
+		    <div class="layui-upload">
+			  <button type="button" name="formFile" class="layui-btn" id="test1">上传图片</button>
+			  <div class="layui-upload-list">
+		    	<p id="demoText"></p>
+	  		</div>
+		    <div class="layui-input-inline">
+		      <img id="viewtimg" style="width:150px;height:150px" alt="" src="">
+		      <input id="uptimg1" type="hidden" name="pimg"/>
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">产品价格</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="price" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item">
+    <label class="layui-form-label">产品标题</label>
+    <div class="layui-input-inline">
+      <select id="level1" lay-filter="level1" name="quiz1">
+        <option id ="o1" name="opt1"></option>
+      </select>
+    </div>
+    <div class="layui-input-inline">
+      <select id="level2" lay-filter="level2" name="quiz2" >
+        <option id ="o2" name="opt2"></option>
+      </select>
+    </div>
+    <div class="layui-input-inline">
+      <select id="level3" name="quiz3">
+        <option id ="o3" name="opt3"></option>
+      </select>
+    </div>
+  </div>
+		  
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">点击数</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="pv" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">类别</label>
+		    <div class="layui-input-inline">
+		      <input type="text" name="typeid" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+		    </div>
+		  </div>
+		  
+		  
+		  
+		  
+		  <div class="layui-form-item">
+		    <button id="edit" class="layui-btn" lay-submit="" lay-filter="demo2">修改</button>
+		  </div>
+		</form>
+		
+		<!-- 添加操作的两个按钮 编辑和删除 -->
+		<script type="text/html" id="barDemo">
+    		<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</ a>
+    		<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</ a>
+		</script>
+		
+		<script type="text/javascript">
+		/* 以下js代码使用layui的js来实现编辑和删除的功能 */
+		layui.use(['table','form'], function(){
+			  var table = layui.table;
+			  var form = layui.form;
+			  var $ = layui.$;
+			  table.on('tool(test)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+			      var data = obj.data; //获得当前行数据
+			      
+			      
+			      var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+			      var tr = obj.tr; //获得当前行 tr 的DOM对象
+
+			      if(layEvent === 'del'){ //删除
+			            layer.confirm('真的删除ID为：'+data.id+"的用户吗?", function(index){
+			            
+			                //console.log(data.p_id);
+			                //向服务端发送删除指令
+			                    $.ajax({
+			                        url:'../userbefore/productServlet',
+			                        type:'get',
+			                        data:{'id':data.id,'op':"del"},//向服务端发送删除的id
+			                        dataType:'json',
+			                        success:function(data){
+			                        	var suc = data.code;
+			                            if(suc==200){
+			                                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+			                                layer.close(index);
+			                                console.log(index);
+			                                layer.msg("删除成功",{icon:1});
+			                            }
+			                            else{
+			                                layer.msg("删除失败",{icon:5});
+			                            }
+			                        }
+			                    });
+			                    layer.close(index); 
+			                     });
+			              
+			      } else if(layEvent === 'edit'){ //编辑
+			        console.log(data);
+			      $("#ee").val(data.id);
+			      $("#viewtimg").attr("src","../../img/"+data.pimg);
+			      
+			      var title = data.ptitle;
+			      var level = title.split("-");
+			      
+			      
+
+			      $("#level1").html("<option>"+level[0]+"</option>");
+			      $("#level2").html("<option>"+level[1]+"</option>");
+			      $("#level3").html("<option>"+level[2]+"</option>");
+			      
+
+			      					/* 打开上面隐藏的修改的form表单 */
+									layer.open({
+			                            type: 1,
+			                            area: ['800px', '550px'],
+			                            title: "更改信息",
+			                            fixed: false, //不固定
+			                            maxmin: true,
+			                            maxmin: false,
+			                            shadeClose:false,
+			                            content: $('#editform')
+			                          });
+			                          //表单值
+			                          form.val("formTest",{			                            
+			                        	"pname":data.pname,
+			                        	"price":data.price,
+			                        	"pv":data.pv,
+			                            "typeid":data.typename,
+			                            "id":data.id,
+			                            "pimg":data.pimg
+			                            
+			                            
+			                            
+			                         });
+			                          
+			                          
+                      $(function(){
+          				$.post({
+          					url:"../userbefore/productServlet",
+          					data:"op=one",
+          					dataType:"json",
+          					success:function(data){
+          						
+          						for(var i in data){
+          							var p = data[i];
+          							var n = p.title;
+          							if(n!=level[0]){
+          								var $op = $("<option value="+p.id+">"+n+"</option>");
+              							$("#level1").append($op);
+          							}
+          							
+          						}
+          						
+          						layui.use('element', function() {
+          					           var element = layui.element;
+          					           element.init();
+          					          });
+          						
+          						layui.use('form', function() {
+          					           var form = layui.form;
+          					           form.render();
+          					          });
+          					}
+          				});
+          			});
+			       
+			        }
+			    });
+			  
+			});
+		</script>
+		
+	</body>
+</html>
